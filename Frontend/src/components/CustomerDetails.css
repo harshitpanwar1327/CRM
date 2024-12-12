@@ -1,0 +1,75 @@
+.customer-details {
+  padding: 20px;
+  width: 100vw; /* Full viewport width */
+  height: 100vh; /* Full viewport height */
+  /* position: fixed; Anchor the container to the viewport */
+  top: 10;
+  left: 10;
+  background-color: #f9f9f9;
+  border-radius: 0; /* Remove rounded corners for full-page effect */
+  box-shadow: none; /* Optional: Remove box shadow for flat appearance */
+  overflow: hidden; /* Prevent content overflow */
+  display: flex;
+  flex-direction: column; /* Stack child elements vertically */
+  margin-top: 30px;
+}
+
+.details-container {
+  flex: 1;
+
+  max-height: 400px;
+  overflow-y: auto; 
+  background-color: #ffffff;
+  padding: 15px;
+  border-radius: 5px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.detail-item {
+  margin-top: 20px;
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+  cursor: pointer;
+}
+
+.detail-item:hover {
+  background-color: #f0f0f0;
+}
+
+.additional-info {
+  margin-top: 10px;
+  padding: 5px;
+  background-color: #f8f8f8;
+  border-left: 3px solid #007bff;
+}
+
+.same-email-records {
+  flex: 1; /* Allow this section to grow and fill available space */
+  overflow-y: auto; /* Add vertical scrolling for overflowing content */
+  background-color: #ffffff;
+  padding: 15px;
+  border-radius: 5px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+}
+
+.record-item {
+  padding: 10px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  background-color: #fafafa;
+}
+
+.loading {
+  color: #007bff;
+  font-weight: bold;
+}
+
+.error {
+  color: #ff0000;
+  font-weight: bold;
+}
