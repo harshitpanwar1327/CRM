@@ -15,7 +15,7 @@ const userSchema = new mongoose.Schema(
     Country: { type: String },
     Date_Of_Birth: { type: Date },
     Notes: { type: String },
-    Follow_Up_Date: { type: Date }, // Added field for note date
+    Follow_Up_Date: { type: Date },
   },
   { timestamps: true }
 );

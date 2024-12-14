@@ -27,46 +27,6 @@ export const getUserByEmail = async (req, res) => {
   }
 };
 
-// Fetch paginated and filtered user records
-// export const getUsers = async (req, res) => {
-//   const page = parseInt(req.query.page) || 1;
-//   const limit = parseInt(req.query.limit) || 10;
-//   const search = req.query.search || '';
-
-//   try {
-//     const skip = (page - 1) * limit;
-
-//     // Create a dynamic filter to apply search across all string fields in the User model
-//     const filter = {
-//       $or: [
-//         { Model_Type: { $regex: search, $options: 'i' } },
-//         { Stage_Name: { $regex: search, $options: 'i' } },
-//         { Model_Insta_Link: { $regex: search, $options: 'i' } },
-//         { Email_Address: { $regex: search, $options: 'i' } },
-//         { Photographer_Insta_Link: { $regex: search, $options: 'i' } },
-//         { Mua_Stage_Name: { $regex: search, $options: 'i' } },
-//         { Mua_Insta_link: { $regex: search, $options: 'i' } },
-//         { Phone_Number_2: { $regex: search, $options: 'i' } },
-//         { Country: { $regex: search, $options: 'i' } },
-//         { Magazine_Viewer: { $regex: search, $options: 'i' } },
-//       ],
-//     };
-
-//     // Fetch users with pagination and the constructed filter
-//     const users = await User.find(filter).skip(skip).limit(limit).lean();
-//     const totalUsers = await User.countDocuments(filter);
-
-//     res.json({
-//       totalRecords: totalUsers,
-//       page,
-//       totalPages: Math.ceil(totalUsers / limit),
-//       users, // return the filtered users
-//     });
-//   } catch (err) {
-//     res.status(500).json({ error: `Error retrieving users: ${err.message}` });
-//   }
-// };
-
 export const getUsers = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;

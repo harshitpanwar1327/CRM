@@ -10,10 +10,9 @@ const AddAdminModal = ({ setOpenAddAdminModal, addAdmin }) => {
     name: '', 
     email: '',
     password: '',
-    accessAssigned: ''
+    accessAssigned: '',
+    role: ''
   });
-  
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   
   const accessAssignedOptions = ['Alphero', 'Blackcruze', 'Blaze', 'Con', 'Envy', 'Mac', 'Magblack', 'Mirror', 'Uncover', 'Will'];
 
@@ -50,18 +49,11 @@ const AddAdminModal = ({ setOpenAddAdminModal, addAdmin }) => {
       };
 
       await setDoc(doc(db, "adminPanel", user.uid), {
-        admin: [
-          {
-            accessRole: [
-              {
-                magazine: formData.accessAssigned,
-              }
-            ],
-            email: formData.email,
-            name: formData.name,
-            uid: user.uid
-          }
-        ]
+        magazine: formData.accessAssigned,
+        email: formData.email,
+        name: formData.name,
+        uid: user.uid,
+        role: 'Admin'
       });
 
       addAdmin(adminData);

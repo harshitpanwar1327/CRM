@@ -79,15 +79,16 @@ const ViewerTable = () => {
       const filteredUsers = users.filter((user) => {
         const searchLower = search.toLowerCase();
         return (
-          (user.Email_Address && user.Email_Address.toLowerCase().includes(searchLower)) 
-          && !recordEmails.has(user.Email_Address) ||
-          (user.Stage_Name && user.Stage_Name.toLowerCase().includes(searchLower))
-          && !recordEmails.has(user.Full_Name) ||
-          (user.Model_Type && user.Model_Type.toLowerCase().includes(searchLower)) ||
-          (user.Magazine_Viewer && user.Magazine_Viewer.toLowerCase().includes(searchLower)) ||
-          (user.Model_Insta_Link && user.Model_Insta_Link.toLowerCase().includes(searchLower))
+          !recordEmails.has(user.Email_Address) &&
+          (
+            (user.Email_Address && user.Email_Address.toLowerCase().includes(searchLower)) ||
+            (user.Stage_Name && user.Stage_Name.toLowerCase().includes(searchLower)) ||
+            (user.Model_Type && user.Model_Type.toLowerCase().includes(searchLower)) ||
+            (user.Magazine_Viewer && user.Magazine_Viewer.toLowerCase().includes(searchLower)) ||
+            (user.Model_Insta_Link && user.Model_Insta_Link.toLowerCase().includes(searchLower))
+          )
         );
-      });
+      });      
   
       setCustomers(filteredUsers); // Update the state with filtered users
       setTotalPages(usersData.totalPages || Math.ceil(usersData.total / 100));
@@ -159,13 +160,14 @@ const ViewerTable = () => {
             : customer
         )
       );
-      setOpenUpdateDetailsModal(false); // Close the modal
-      setError(null); // Clear any errors
+  
+      setOpenUpdateDetailsModal(false);
+      setError(null);
     } catch (err) {
       console.error('Error updating user details:', err);
       setError('Error updating user details. Please try again.');
     }
-  };  
+  };    
 
   useEffect(() => {
     console.log('Fetching customers with:', { page, search });

@@ -160,7 +160,7 @@ const UpdateCustomerDetailsModal = ({
       >
         <div className='modalTopLine'>
           <h2 className='custName'>
-            {formData.firstName + ' ' + formData.lastName || 'Customer'}
+            {formData.fullName || 'Customer'}
           </h2>
           <span onClick={() => setOpenUpdateDetailsModal(false)}>
             <i

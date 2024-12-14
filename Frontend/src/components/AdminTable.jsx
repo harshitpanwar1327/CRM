@@ -7,7 +7,7 @@ import { doc, deleteDoc } from 'firebase/firestore';
 const AdminTable = ({ admins, setAdmins }) => {
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [adminToDelete, setAdminToDelete] = useState(null);
-  const [searchTerm, setSearchTerm] = useState(''); // State to track the search term
+  const [searchTerm, setSearchTerm] = useState('');
 
   const handleDelete = (id) => {
     setOpenDeleteModal(true);
@@ -55,15 +55,17 @@ const AdminTable = ({ admins, setAdmins }) => {
             <th>Admin Name</th>
             <th>Email</th>
             <th>Access Assigned</th>
+            <th>Role</th>
             <th>Delete</th>
           </tr>
         </thead>
         <tbody>
-          {filteredAdmins.map((admin) => (
-            <tr key={admin.uid}>
+          {filteredAdmins.map((admin, index) => (
+            <tr key={`${admin.uid}-${index}`}>
               <td>{admin.name}</td>
               <td>{admin.email}</td>
               <td>{admin.accessRole}</td>
+              <td>{admin.role}</td>
               <td>
                 <button className="delete-btn" onClick={() => handleDelete(admin.uid)}>
                   <i className="fa-solid fa-trash"></i>

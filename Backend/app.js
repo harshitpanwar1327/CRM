@@ -39,6 +39,10 @@ const connectDB = async () => {
 // Initialize database connection
 connectDB();
 
+app.get('/', (req, res) => {
+  res.send('Welcome to the CRM Backend!');
+});
+
 // Routes
 app.use('/records', recordRoutes);
 

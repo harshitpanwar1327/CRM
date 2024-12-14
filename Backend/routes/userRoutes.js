@@ -15,7 +15,6 @@ router.get('/users/email', getUserByEmail); // Changed the endpoint to /email fo
 router.get('/users', getUsers); // This endpoint will handle fetching users with pagination and filtering
 // Route to update user details
 router.put('/users/:id', updateUser);
-
 // Route to delete user
 router.delete('/users/:id', deleteUser);
 

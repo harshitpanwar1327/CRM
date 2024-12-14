@@ -8,23 +8,20 @@ const UpdateViewerDetailsModal = ({
   handleUpdateDetails,
 }) => {
   const [formData, setFormData] = useState({
-    emailAddress: currentCustomer?.Email_Address || '',
-    modelType: currentCustomer?.Model_Type || '',
-    stageName: currentCustomer?.Stage_Name || '',
-    modelInstaLink: currentCustomer?.Model_Insta_Link || '',
-    // notes: '',
-    // noteDate: '',
+    Email_Address: currentCustomer?.Email_Address || '',
+    Model_Type: currentCustomer?.Model_Type || '',
+    Stage_Name: currentCustomer?.Stage_Name || '',
+    Model_Insta_Link: currentCustomer?.Model_Insta_Link || '',
   });
 
-  // Fetch customer data when the modal opens
   // Update state when the currentCustomer changes
   useEffect(() => {
     if (currentCustomer) {
       setFormData({
-        emailAddress: currentCustomer.Email_Address || '',
-        modelType: currentCustomer.Model_Type || '',
-        stageName: currentCustomer.Stage_Name || '',
-        modelInstaLink: currentCustomer.Model_Insta_Link || '',
+        Email_Address: currentCustomer.Email_Address || '',
+        Model_Type: currentCustomer.Model_Type || '',
+        Stage_Name: currentCustomer.Stage_Name || '',
+        Model_Insta_Link: currentCustomer.Model_Insta_Link || '',
       });
     }
   }, [currentCustomer]);
@@ -59,45 +56,31 @@ const UpdateViewerDetailsModal = ({
             <InputField
               label='Model Type'
               type='text'
-              name='modelType'
-              value={formData.modelType}
+              name='Model_Type'
+              value={formData.Model_Type}
               onChange={handleChange}
             />
             <InputField
               label='Stage Name'
               type='text'
-              name='stageName'
-              value={formData.stageName}
+              name='Stage_Name'
+              value={formData.Stage_Name}
               onChange={handleChange}
             />
             <InputField
               label='Model Insta Link'
               type='text'
-              name='modelInstaLink'
-              value={formData.modelInstaLink}
+              name='Model_Insta_Link'
+              value={formData.Model_Insta_Link}
               onChange={handleChange}
             />
             <InputField
               label='Email Address'
               type='email'
-              name='emailAddress2'
-              value={formData.emailAddress}
+              name='Email_Address'
+              value={formData.Email_Address}
               onChange={handleChange}
             />
-            {/* <InputField
-              label='Notes'
-              type='text'
-              name='notes' // New field
-              value={formData.notes}
-              onChange={handleChange}
-            />
-            <InputField
-              label='Note Date'
-              type='date'
-              name='noteDate' // New field
-              value={formData.noteDate}
-              onChange={handleChange}
-            /> */}
           </div>
           <button type='submit' className='updateBtn'>
             Update
