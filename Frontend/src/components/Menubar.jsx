@@ -1,5 +1,5 @@
 import profilePhoto from '../assets/profilePhoto.jpg';
-import './menuBar.css'; 
+import './menubar.css'; 
 
 const MenuBar = ( {heading} ) => {
   return (
