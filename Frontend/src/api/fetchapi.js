@@ -1,7 +1,8 @@
 // src/api.js
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000'; // Replace with your backend API URL
+// const API_URL = 'http://localhost:5000'; // Replace with your backend API URL
+const API_URL = 'http://www.api.thewithinkers.com';
 
 // Generalized function to fetch data from a given endpoint
 const fetchData = async (endpoint, page, limit, search = '', magazine = '') => {
