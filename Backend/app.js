@@ -13,7 +13,7 @@ const app = express();
 // Middleware configurations
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || 'http://localhost:5173', // Use env variable for CORS origin
+    origin: process.env.CORS_ORIGIN || 'http://www.thewithinkers.com' || 'http://localhost:5173', // Use env variable for CORS origin
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization'],
