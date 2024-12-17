@@ -48,6 +48,8 @@ const Dashboard = () => {
           fetchAdmins(),
         ]);
 
+        console.log("Fetched Admin Data: ", adminData);
+
         setData((prevState) => ({
           ...prevState,
           sales: {

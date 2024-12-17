@@ -34,7 +34,7 @@ const PieChart = () => {
 
   const options = {
     labels: Object.keys(magazineData),
-    colors: ["#6886af", "#d7adbe", "#ab94b0", "#116594", "#242d62", "#585387", "#adb7dc", "#b6c6db", "#82465c", "#c56477"],
+    colors: ["#ff595e", "#ff924c", "#ffca3a", "#c5ca30", "#8ac926", "#52a675", "#1982c4", "#4267ac", "#6a4c93", "#d677b8"],
     legend: {
       position: "bottom",
     }

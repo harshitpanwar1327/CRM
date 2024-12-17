@@ -11,14 +11,28 @@ dotenv.config();
 const app = express();
 
 // Middleware configurations
+const allowedOrigins = 
+  // 'http://localhost:5173';
+  'http://www.thewithinkers.com';
+  // process.env.NODE_ENV === 'production'
+  //   ? ['http://www.thewithinkers.com']
+  //   : ['http://localhost:5173'];
+
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || 'http://www.thewithinkers.com' || 'http://localhost:5173', // Use env variable for CORS origin
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization'],
   })
 );
+
 
 app.use(express.json());
 
