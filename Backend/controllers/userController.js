@@ -27,6 +27,53 @@ export const getUserByEmail = async (req, res) => {
   }
 };
 
+// export const getUsers = async (req, res) => {
+//   const page = parseInt(req.query.page) || 1;
+//   const limit = parseInt(req.query.limit) || 10;
+//   const search = req.query.search || '';
+
+//   try {
+//     const skip = (page - 1) * limit;
+
+//     // Create a dynamic filter to apply search across all string fields in the User model
+//     const filter = {
+//       $or: [
+//         { Model_Type: { $regex: search, $options: 'i' } },
+//         { Stage_Name: { $regex: search, $options: 'i' } },
+//         { Model_Insta_Link: { $regex: search, $options: 'i' } },
+//         { Email_Address: { $regex: search, $options: 'i' } },
+//         { Photographer_Insta_Link: { $regex: search, $options: 'i' } },
+//         { Mua_Stage_Name: { $regex: search, $options: 'i' } },
+//         { Mua_Insta_link: { $regex: search, $options: 'i' } },
+//         { Phone_Number_2: { $regex: search, $options: 'i' } },
+//         { Country: { $regex: search, $options: 'i' } },
+//         { Magazine_Viewer: { $regex: search, $options: 'i' } },
+//       ],
+//     };
+
+//     // Fetch users with pagination and the constructed filter
+//     const users = await User.find(filter).skip(skip).limit(limit).lean();
+//     const totalUsers = await User.countDocuments(filter);
+
+//     // Aggregate the number of records per magazine (Magazine_Viewer field)
+//     const magazineCounts = await User.aggregate([
+//       { $match: filter },  // Apply the same filter as above
+//       { $group: { _id: "$Magazine_Viewer", count: { $sum: 1 } } }, // Group by Magazine_Viewer and count the records
+//       { $sort: { count: -1 } },  // Sort by the count in descending order
+//     ]);
+
+//     res.json({
+//       totalRecords: totalUsers,
+//       page,
+//       totalPages: Math.ceil(totalUsers / limit),
+//       users, // return the filtered users
+//       magazineCounts, // return the number of records per magazine
+//     });
+//   } catch (err) {
+//     res.status(500).json({ error: `Error retrieving users: ${err.message}` });
+//   }
+// };
+
 export const getUsers = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
@@ -35,8 +82,8 @@ export const getUsers = async (req, res) => {
   try {
     const skip = (page - 1) * limit;
 
-    // Create a dynamic filter to apply search across all string fields in the User model
-    const filter = {
+    // Dynamic filter for search
+    const matchFilter = {
       $or: [
         { Model_Type: { $regex: search, $options: 'i' } },
         { Stage_Name: { $regex: search, $options: 'i' } },
@@ -51,23 +98,37 @@ export const getUsers = async (req, res) => {
       ],
     };
 
-    // Fetch users with pagination and the constructed filter
-    const users = await User.find(filter).skip(skip).limit(limit).lean();
-    const totalUsers = await User.countDocuments(filter);
+    // Aggregate query to fetch unique Email_Address records
+    const aggregatePipeline = [
+      { $match: matchFilter }, // Apply the search filter
+      {
+        $group: {
+          _id: '$Email_Address', // Group by Email_Address
+          doc: { $first: '$$ROOT' }, // Retrieve the first document in each group
+        },
+      },
+      { $replaceRoot: { newRoot: '$doc' } }, // Replace the root with the grouped document
+      { $skip: skip }, // Pagination: skip the records for the current page
+      { $limit: limit }, // Pagination: limit the number of records
+    ];
 
-    // Aggregate the number of records per magazine (Magazine_Viewer field)
-    const magazineCounts = await User.aggregate([
-      { $match: filter },  // Apply the same filter as above
-      { $group: { _id: "$Magazine_Viewer", count: { $sum: 1 } } }, // Group by Magazine_Viewer and count the records
-      { $sort: { count: -1 } },  // Sort by the count in descending order
+    // Fetch the unique users
+    const users = await User.aggregate(aggregatePipeline);
+
+    // Count total unique users
+    const totalUsers = await User.aggregate([
+      { $match: matchFilter },
+      { $group: { _id: '$Email_Address' } },
+      { $count: 'total' },
     ]);
 
+    const totalRecords = totalUsers[0]?.total || 0;
+
     res.json({
-      totalRecords: totalUsers,
+      totalRecords,
       page,
-      totalPages: Math.ceil(totalUsers / limit),
-      users, // return the filtered users
-      magazineCounts, // return the number of records per magazine
+      totalPages: Math.ceil(totalRecords / limit),
+      users, // Return the unique users
     });
   } catch (err) {
     res.status(500).json({ error: `Error retrieving users: ${err.message}` });

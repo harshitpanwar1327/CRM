@@ -14,9 +14,6 @@ const app = express();
 const allowedOrigins = 
   // 'http://localhost:5173';
   'http://www.thewithinkers.com';
-  // process.env.NODE_ENV === 'production'
-  //   ? ['http://www.thewithinkers.com']
-  //   : ['http://localhost:5173'];
 
 app.use(
   cors({

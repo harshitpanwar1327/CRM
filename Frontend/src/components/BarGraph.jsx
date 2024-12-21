@@ -12,7 +12,7 @@ const Bargraph = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const salesData = await fetchRecords(1, 1000);
+        const salesData = await fetchRecords(1, 100);
         const magazineSales = salesData.magazineSales || [];
 
         // Round off sales to nearest integer

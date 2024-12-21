@@ -61,36 +61,36 @@ const ViewerTable = () => {
   const [currentCustomer, setCurrentCustomer] = useState(null);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [openUpdateDetailsModal, setOpenUpdateDetailsModal] = useState(false);
+  const [showFilterOptions, setShowFilterOptions] = useState(false);
+  const [selectedModelTypes, setSelectedModelTypes] = useState([]);
 
   const fetchCustomers = async () => {
     setLoading(true);
     try {
-      // Fetch users and records data
       const usersData = await fetchUsers(page, 200, search);
       const recordsData = await fetchRecords(page, 200, search);
   
       const users = Array.isArray(usersData.users) ? usersData.users : [];
       const records = Array.isArray(recordsData.records) ? recordsData.records : [];
   
-      // Extract the list of emails from records
       const recordEmails = new Set(records.map((record) => record.Email));
   
-      // Filter users based on matching emails or stage name (case insensitive search)
       const filteredUsers = users.filter((user) => {
         const searchLower = search.toLowerCase();
-        return (
-          !recordEmails.has(user.Email_Address) &&
-          (
-            (user.Email_Address && user.Email_Address.toLowerCase().includes(searchLower)) ||
-            (user.Stage_Name && user.Stage_Name.toLowerCase().includes(searchLower)) ||
-            (user.Model_Type && user.Model_Type.toLowerCase().includes(searchLower)) ||
-            (user.Magazine_Viewer && user.Magazine_Viewer.toLowerCase().includes(searchLower)) ||
-            (user.Model_Insta_Link && user.Model_Insta_Link.toLowerCase().includes(searchLower))
-          )
-        );
-      });      
+        const matchesSearch =
+          (user.Email_Address && user.Email_Address.toLowerCase().includes(searchLower)) ||
+          (user.Stage_Name && user.Stage_Name.toLowerCase().includes(searchLower)) ||
+          (user.Model_Type && user.Model_Type.toLowerCase().includes(searchLower)) ||
+          (user.Magazine_Viewer && user.Magazine_Viewer.toLowerCase().includes(searchLower)) ||
+          (user.Model_Insta_Link && user.Model_Insta_Link.toLowerCase().includes(searchLower));
+        
+        const matchesFilter =
+          selectedModelTypes.length === 0 || selectedModelTypes.includes(user.Model_Type);
   
-      setCustomers(filteredUsers); // Update the state with filtered users
+        return !recordEmails.has(user.Email_Address) && matchesSearch && matchesFilter;
+      });
+  
+      setCustomers(filteredUsers);
       setTotalPages(usersData.totalPages || Math.ceil(usersData.total / 100));
     } catch (err) {
       console.error('Error fetching customers:', err);
@@ -99,7 +99,7 @@ const ViewerTable = () => {
     } finally {
       setLoading(false);
     }
-  };    
+  };      
 
   const handleSearch = (e) => {
     setSearch(e.target.value);
@@ -170,22 +170,77 @@ const ViewerTable = () => {
   };    
 
   useEffect(() => {
-    console.log('Fetching customers with:', { page, search });
     fetchCustomers();
-    console.log(fetchCustomers());
-  }, [page, search]);
+  }, [page, search, selectedModelTypes]);
+  
+
+  const handleFilterClick = ()=>{
+    setShowFilterOptions((prev) => !prev);
+  }
+
+  const handleFilterChange = (e) => {
+    const { id, checked } = e.target;
+    setSelectedModelTypes((prev) =>
+      checked ? [...prev, id] : prev.filter((type) => type !== id)
+    );
+  };
 
   return (
     <div className='customer-table-container'>
       <div className='table-header'>
         <h3>All Viewers</h3>
-        <input
-          type='text'
-          placeholder='Search by name or email'
-          value={search}
-          onChange={handleSearch}
-          className='search-bar'
-        />
+        <div className='search-and-filter'>
+          <input
+            type='text'
+            placeholder='Search by name or email'
+            value={search}
+            onChange={handleSearch}
+            className='search-bar'
+          />
+          <div className="filterDropdown">
+            <i class="fa-solid fa-sliders" onClick={(e) => {
+              e.stopPropagation();
+              handleFilterClick();
+            }}></i>
+            {showFilterOptions && (
+              <ul className='filterOptions'>
+                <li>
+                  <input
+                    type="checkbox"
+                    name="model_type"
+                    id="Model"
+                    className='model_type-checkbox'
+                    onChange={handleFilterChange}
+                    checked={selectedModelTypes.includes('Model')}
+                  />
+                  <label htmlFor="Model">Model</label>
+                </li>
+                <li>
+                  <input
+                    type="checkbox"
+                    name="model_type"
+                    id="Photographer"
+                    className='model_type-checkbox'
+                    onChange={handleFilterChange}
+                    checked={selectedModelTypes.includes('Photographer')}
+                  />
+                  <label htmlFor="Photographer">Photographer</label>
+                </li>
+                <li>
+                  <input
+                    type="checkbox"
+                    name="model_type"
+                    id="Mua"
+                    className='model_type-checkbox'
+                    onChange={handleFilterChange}
+                    checked={selectedModelTypes.includes('Mua')}
+                  />
+                  <label htmlFor="Mua">Mua</label>
+                </li>
+              </ul>
+            )}
+          </div>
+        </div>
       </div>
 
       <Pagination

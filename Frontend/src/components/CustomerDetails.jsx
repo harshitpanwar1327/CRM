@@ -46,13 +46,13 @@ const CustomerDetails = () => {
 
   const totalAmount =
     sameEmailRecords
-      .filter((record) => record._id !== customer?._id) // Exclude main customer record
+      .filter((record) =>
+          record._id !== customer?._id && record.Status !== 'Declined' // Exclude same customer and declined records
+      )
       .reduce((sum, record) => sum + (record.Amount || 0), 0) +
-    (customer?.Amount || 0); // Add main customer amount separately
+    (customer?.Status !== 'Declined' ? customer.Amount || 0 : 0); // Include customer.Amount only if not declined
 
   const fieldsToDisplay = {
-    // 'First Name': customer.First_Name,
-    // 'Last Name': customer.Last_Name,
     'Full Name': customer.Full_Name,
     Magazine: customer.Magazine,
     Currency: customer.Currency,
@@ -67,8 +67,7 @@ const CustomerDetails = () => {
     // Amount: customer.Amount,
     Shipping: customer.Shipping,
     Discount: customer.Discount,
-    'Total Amount': totalAmount.toFixed(2), // Add Total Amount field here
-
+    'Total Amount': totalAmount.toFixed(2),
     // Quantity: customer.Quantity,
     // Instagram: customer.Model_Insta_Link,
   };
@@ -92,7 +91,10 @@ const CustomerDetails = () => {
       <div className='details-container'>
         {Object.entries(fieldsToDisplay).map(([key, value]) => (
           <div
-            className='detail-item'
+            className={`detail-item ${key === 'Status'
+              ? value === 'Successful'
+                ? 'record-item-successful' : 'record-item-decline'
+              : 'transparent'}`}
             key={key}
             onClick={() => toggleFieldExpansion(key)}
             role='button'
@@ -125,7 +127,12 @@ const CustomerDetails = () => {
       <div className='same-email-records'>
         {filteredSameEmailRecords.length > 0 ? (
           filteredSameEmailRecords.map((record) => (
-            <div className='record-item' key={record._id}>
+            <div 
+              className={`record-item ${
+                record.Status === 'Successful' ? 'record-item-successful' : 'record-item-decline'
+              }`}
+              key={record._id}
+            >
               <strong>Order ID:</strong> {record.Order_id} <br />
               <strong>Magazine:</strong> {record.Magazine} <br />
               <strong>Product:</strong> {record.Product} <br />

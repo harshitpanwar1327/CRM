@@ -13,7 +13,9 @@ const TopCustomerTable = () => {
             const emailKey = customer.Email || '';
             if (emailMap[emailKey]) {
                 const existingCustomer = emailMap[emailKey];
-                existingCustomer.Amount += customer.Amount;
+                if (customer.Status !== 'Declined') {
+                    existingCustomer.Amount += customer.Amount || 0;
+                }
                 existingCustomer.Quantity += customer.Quantity;
                 existingCustomer.Notes += ', ' + customer.Notes;
             } else {
@@ -27,7 +29,7 @@ const TopCustomerTable = () => {
         setLoading(true);
         setError(null);
         try {
-            const data = await fetchRecords(1, 100000); // Fetch all records
+            const data = await fetchRecords(1, 10000); // Fetch all records
             const mergedCustomers = mergeCustomersByEmail(data.records);
 
             // Sort by amount in descending order and get the top 10 customers

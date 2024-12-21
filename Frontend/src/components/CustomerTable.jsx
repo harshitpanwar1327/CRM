@@ -26,6 +26,9 @@ const CustomerTable = () => {
   const [sortOrder, setSortOrder] = useState('asc'); // State for sorting order
   const [fields, setFields] = useState([]); // For dynamic fields
   const [NewfilteredCustomers, setNewFilteredCustomers] = useState(customers);
+  const [showFilterOptions, setShowFilterOptions] = useState(false);
+  const [selectedModelTypes, setSelectedModelTypes] = useState([]);
+  const [filterCustomers, setFilterCustomers] = useState([]);
 
   const [tableFields, setTableFields] = useState({
     Name: true,
@@ -33,11 +36,11 @@ const CustomerTable = () => {
     Amount: true,
     Country_Code: false,
     Email: true,
-    Payment_Type: true,
+    // Payment_Type: true,
     Order_id: true,
     Address: false,
     Product: false,
-    // Quantity: false,
+    Model_Type: false,
     Model_Insta_Link: true,
     Note: false,
     Follow_Up_Date: false,
@@ -87,11 +90,14 @@ const CustomerTable = () => {
     const amount = parseFloat(customer.Amount);
     const min = parseFloat(minPrice);
     const max = parseFloat(maxPrice);
-
+  
     const isWithinMin = isNaN(min) || amount >= min;
     const isWithinMax = isNaN(max) || amount <= max;
+  
+    const matchesModelType =
+      selectedModelTypes.length === 0 || selectedModelTypes.includes(customer.user_info?.Model_Type);
 
-    return isWithinMin && isWithinMax;
+    return isWithinMin && isWithinMax && matchesModelType;
   });
 
   const handleNotesUpdated = () => {
@@ -112,6 +118,17 @@ const CustomerTable = () => {
     const value = e.target.value;
     setSearch(value);
     handleSearch(value); // Call search on every input change
+  };
+
+  const handleFilterClick = ()=>{
+    setShowFilterOptions((prev) => !prev);
+  }
+
+  const handleFilterChange = (e) => {
+    const { id, checked } = e.target;
+    setSelectedModelTypes((prev) =>
+      checked ? [...prev, id] : prev.filter((type) => type !== id)
+    );
   };
 
   const fetchCustomers = async (currentPage = 1, pageSize = 100) => {
@@ -144,38 +161,47 @@ const CustomerTable = () => {
     }
   };
 
+  useEffect(() => {
+    fetchCustomers();
+  }, [search, minPrice, maxPrice]);
+
   const mergeCustomersByEmail = (data) => {
     const emailMap = {};
-
+  
     data.forEach((customer) => {
       const email1 = customer.Email || '';
       const email2 = customer.Email || '';
       const emailKey = email1 === email2 ? email1 : `${email1}_${email2}`;
-
+  
       if (emailMap[emailKey]) {
         const existingCustomer = emailMap[emailKey];
-
+  
         existingCustomer.Product = existingCustomer.Product
           ? `${existingCustomer.Product}\n- ${customer.Product}`
           : `- ${customer.Product}`;
-
+  
         existingCustomer.Magazine += `, ${customer.Magazine}`;
+  
+        // Check both existing and current customer status before adding Amount
         if (
-          customer.Payment_Type === 'Single payment' &&
-          customer.Status !== 'Declined'
+          existingCustomer.Status == 'Declined' && customer.Status !== 'Declined'
         ) {
+          existingCustomer.Amount = 0;
           existingCustomer.Amount = Math.round(
-            (existingCustomer.Amount || 0) + customer.Amount
+            (existingCustomer.Amount || 0) + (customer.Amount || 0)
           );
         } else {
-          console.log(
-            'Payment not added: Payment type is single, but status is failed.'
-          );
+          if (customer.Status !== 'Declined') {
+            existingCustomer.Amount = Math.round(
+              (existingCustomer.Amount || 0) + (customer.Amount || 0)
+            );
+          } else {
+            console.log('Payment not added: Payment type is single, or one status is Declined.');
+          }
         }
-
-        existingCustomer.Quantity += customer.Quantity;
-
-        existingCustomer.Notes += ', ' + customer.Notes;
+        
+        existingCustomer.Quantity += customer.Quantity || 0;
+        existingCustomer.Notes += ', ' + (customer.Notes || '');
         existingCustomer.NoteDate = new Date(
           Math.max(
             new Date(existingCustomer.NoteDate),
@@ -186,14 +212,28 @@ const CustomerTable = () => {
         emailMap[emailKey] = { ...customer }; 
       }
     });
-
+  
     // Convert the map values back to an array
     return Object.values(emailMap);
-  };
+  };  
 
   useEffect(() => {
-    fetchCustomers();
-  }, [search, minPrice, maxPrice]);
+    setFilterCustomers(
+      customers.filter((customer) => {
+        const amount = parseFloat(customer.Amount);
+        const min = parseFloat(minPrice);
+        const max = parseFloat(maxPrice);
+  
+        const isWithinMin = isNaN(min) || amount >= min;
+        const isWithinMax = isNaN(max) || amount <= max;
+  
+        const matchesModelType =
+          selectedModelTypes.length === 0 || selectedModelTypes.includes(customer.user_info?.Model_Type);
+  
+        return isWithinMin && isWithinMax && matchesModelType;
+      })
+    );
+  }, [customers, minPrice, maxPrice, selectedModelTypes]);  
 
   // Function to fetch the record notes
   const loadNotes = async () => {
@@ -233,7 +273,6 @@ const CustomerTable = () => {
 
   const handleEdit = (id) => {
     window.localStorage.setItem('currCustId', id);
-
     const customer = customers.find((customer) => customer._id === id);
     setCurrentCustomerId(id);
     setSelectedNotes(customer.Notes);
@@ -290,7 +329,7 @@ const CustomerTable = () => {
         </div>
 
         <div className='rightHeader'>
-          <div className='search-customer'>
+          <div className='search-and-filter'>
             <input
               className='search-bar'
               type='text'
@@ -302,6 +341,49 @@ const CustomerTable = () => {
               {filteredCustomers.map((customer) => (
                 <div key={customer.id}>{customer.name}</div>
               ))}
+            </div>
+            <div className="filterDropdown">
+              <i class="fa-solid fa-sliders" onClick={(e) => {
+                e.stopPropagation();
+                handleFilterClick();
+              }}></i>
+              {showFilterOptions && (
+                <ul className='filterOptions'>
+                  <li>
+                    <input
+                      type="checkbox"
+                      name="model_type"
+                      id="Model"
+                      className='model_type-checkbox'
+                      onChange={handleFilterChange}
+                      checked={selectedModelTypes.includes('Model')}
+                    />
+                    <label htmlFor="Model">Model</label>
+                  </li>
+                  <li>
+                    <input
+                      type="checkbox"
+                      name="model_type"
+                      id="Photographer"
+                      className='model_type-checkbox'
+                      onChange={handleFilterChange}
+                      checked={selectedModelTypes.includes('Photographer')}
+                    />
+                    <label htmlFor="Photographer">Photographer</label>
+                  </li>
+                  <li>
+                    <input
+                      type="checkbox"
+                      name="model_type"
+                      id="Mua"
+                      className='model_type-checkbox'
+                      onChange={handleFilterChange}
+                      checked={selectedModelTypes.includes('Mua')}
+                    />
+                    <label htmlFor="Mua">Mua</label>
+                  </li>
+                </ul>
+              )}
             </div>
           </div>
         </div>
@@ -474,7 +556,7 @@ const CustomerTable = () => {
               <tr>
                 {tableFields.Name && <th>Name</th>}
                 {tableFields.Magazine && <th>Magazine</th>}
-                {tableFields.Payment_Type && <th>Payment_Type</th>}
+                {/* {tableFields.Payment_Type && <th>Payment_Type</th>} */}
                 {tableFields.Amount && (
                   <th
                     style={{ cursor: 'pointer' }}
@@ -496,6 +578,7 @@ const CustomerTable = () => {
                 {tableFields.Email && <th>Email</th>}
                 {tableFields.Address && <th>Address</th>}
                 {tableFields.Order_id && <th>Order Id</th>}
+                {tableFields.Model_Type && <th>Model Type</th>}
                 {tableFields.Model_Insta_Link && (
                   <th>
                     <a
@@ -542,7 +625,7 @@ const CustomerTable = () => {
                       </td>
                     )}
 
-                    {tableFields.Payment_Type && (
+                    {/* {tableFields.Payment_Type && (
                       <td>
                         <a
                           href={`/records/${customer._id}`}
@@ -551,7 +634,7 @@ const CustomerTable = () => {
                           {customer.Payment_Type}
                         </a>
                       </td>
-                    )}
+                    )} */}
                     {tableFields.Amount && (
                       <td>
                         <a
@@ -599,6 +682,16 @@ const CustomerTable = () => {
                           className='link-cell'
                         >
                           {customer.Order_id}
+                        </a>
+                      </td>
+                    )}
+                    {tableFields.Model_Type && (
+                      <td>
+                        <a
+                          href={customer.user_info?.Model_Type}
+                          className='link-cell'
+                        >
+                          {customer.user_info?.Model_Type}
                         </a>
                       </td>
                     )}
